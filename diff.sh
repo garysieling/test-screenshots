@@ -22,5 +22,5 @@ fi
 
 compare $path1 $path2 `pwd`/diff.png \
           -compose Src -highlight-color White -lowlight-color Black \
-          diff.png
+          `pwd`/diff.png
 
