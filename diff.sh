@@ -1,15 +1,18 @@
-echo $1
-echo $2
+export prefix=`pwd`/$1
+echo 'Prefix:'
+echo $prefix
 
-export file1=`pwd`/$1 
-export file2=`pwd`/$2 
+export path1=`./first.sh $prefix`
+export path2=`./second.sh $prefix`
 
-echo $file1
-echo $file2
+echo $path1
+echo $path2
 
-export cf=`compare -metric MAE $file1 $file2 null: 2>&1`
+export cf=`compare -metric MAE $path1 $path2 null: 2>&1`
 
+echo 'Comparison:'
 echo $cf
+
 if [ "$cf" = "0 (0)" ]
 then
   echo "Files are equal"
@@ -17,7 +20,7 @@ else
   echo "Files are not equal"
 fi
 
-compare $file1 $file2 `pwd`/diff.png \
+compare $path1 $path2 `pwd`/diff.png \
           -compose Src -highlight-color White -lowlight-color Black \
           diff.png
 
