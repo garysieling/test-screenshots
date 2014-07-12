@@ -62,14 +62,34 @@ function render(url, file, yield) {
     page.settings.password = conf.auth[user];
   }
 
+  if (!!conf.config.cookies) {
+    for (var key in conf.config.cookies) {
+      phantom.addCookie({
+        'name'     : key,
+        'value'    : conf.config.cookies[key],
+        'domain'   : conf.config.domain,
+        'path'     : url.substring(url.indexOf('/')),
+        'httponly' : true,
+        'secure'   : false,
+        'expires'  : (new Date()).getTime() + (1000 * 60 * 60)  
+      });
+    };
+  }
+
   return function() {
     console.log('Loading ' + url + '...');
     var me = this;
     page.open(url, function() {
-      console.log('Rendering ' + file + '...');
-      page.render(file);
+      var pause = 0;
+      if (!!conf.config.pause) 
+        pause = conf.config.pause;
 
-      yield();
+      window.setTimeout(function() {
+        console.log('Rendering ' + file + '...');
+        page.render(file);
+
+        yield();
+      }, pause * 1000);
     });
   };
 }
@@ -80,7 +100,7 @@ var fn =
   };
 
 for (var i = 0; i < urls.length; i++) {
-  fn = render(urls[i], JSON.stringify(urls[i]).hashCode() + '-' + dateStr + '.png', fn);
+  fn = render(urls[i], 'screenshots/' + JSON.stringify(urls[i]).hashCode() + '-' + dateStr + '.png', fn);
 }
 
 fn();
