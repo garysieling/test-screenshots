@@ -48,8 +48,8 @@ var dateStr =
 
 var f = fs.open(system.args[1], "r");
 var conf = f.read();
+f.close();
 
-console.log(conf);
 var conf = JSON.parse(conf);
 var urls = conf.urls;
 
@@ -62,7 +62,7 @@ function render(url, file, yield) {
     page.settings.password = conf.auth[user];
   }
 
-  if (!!conf.config.cookies) {
+  if (!!conf.config && !!conf.config.cookies) {
     for (var key in conf.config.cookies) {
       phantom.addCookie({
         'name'     : key,
@@ -81,12 +81,13 @@ function render(url, file, yield) {
     var me = this;
     page.open(url, function() {
       var pause = 0;
-      if (!!conf.config.pause) 
+      if (!!conf.config && !!conf.config.pause) 
         pause = conf.config.pause;
 
       window.setTimeout(function() {
         console.log('Rendering ' + file + '...');
         page.render(file);
+        page.close();
 
         yield();
       }, pause * 1000);
@@ -99,8 +100,11 @@ var fn =
     phantom.exit(); 
   };
 
+var prefix = system.args[1].replace(".", "_");
+fs.makeTree('screenshots/' + prefix);
+
 for (var i = 0; i < urls.length; i++) {
-  fn = render(urls[i], 'screenshots/' + JSON.stringify(urls[i]).hashCode() + '-' + dateStr + '.png', fn);
+  fn = render(urls[i], 'screenshots/' + prefix + '/' + JSON.stringify(urls[i]).hashCode() + '-' + dateStr + '.png', fn);
 }
 
 fn();
