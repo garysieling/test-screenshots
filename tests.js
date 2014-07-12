@@ -49,10 +49,18 @@ var dateStr =
 var f = fs.open(system.args[1], "r");
 var conf = f.read();
 
-var urls = JSON.parse(conf);
+console.log(conf);
+var conf = JSON.parse(conf);
+var urls = conf.urls;
 
 function render(url, file, yield) {
   var page = require('webpage').create();
+
+  if (!!conf.auth) {
+    var user = Object.keys(conf.auth)[0];
+    page.settings.userName = user;
+    page.settings.password = conf.auth[user];
+  }
 
   return function() {
     console.log('Loading ' + url + '...');
@@ -72,7 +80,7 @@ var fn =
   };
 
 for (var i = 0; i < urls.length; i++) {
-  fn = render(urls[i], urls[i].hashCode() + '-' + dateStr + '.png', fn);
+  fn = render(urls[i], JSON.stringify(urls[i]).hashCode() + '-' + dateStr + '.png', fn);
 }
 
 fn();
