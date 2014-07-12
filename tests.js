@@ -1,3 +1,6 @@
+var fs = require('fs'),
+    system = require('system');
+
 String.prototype.hashCode = function(){
   var hash = 0;
 
@@ -43,13 +46,10 @@ var dateStr =
   today.getHours().toString() + '-' +
   today.getMinutes().toString();
 
-var urls = [ 
-  'http://time.gov/HTML5?x=1',
-  'http://time.gov/HTML5?x=2',
-  'http://time.gov/HTML5?x=3',
-  'http://time.gov/HTML5?x=4',
-  'http://time.gov/HTML5?x=5'
-];
+var f = fs.open(system.args[1], "r");
+var conf = f.read();
+
+var urls = JSON.parse(conf);
 
 function render(url, file, yield) {
   var page = require('webpage').create();
